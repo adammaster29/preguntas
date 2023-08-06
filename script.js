@@ -1,31 +1,33 @@
 const preguntaElement = document.getElementById('pregunta');
 const opcionesElement = document.getElementById('opciones');
 const resultadoElement = document.getElementById('resultado');
+const loadingElement = document.getElementById('loading');
+const gameContainerElement = document.getElementById('game-container');
+const bodyElement = document.body;
+const btnToggleMode = document.getElementById('btn-toggle-mode');
 
 let preguntaActual = 0;
 let puntaje = 0;
 let opcionesDesactivadas = false;
+let preguntasAleatorias = [];
 
-// Función para mezclar el arreglo de preguntas aleatoriamente (Algoritmo Fisher-Yates)
 function mezclarPreguntas() {
   for (let i = preguntas.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [preguntas[i], preguntas[j]] = [preguntas[j], preguntas[i]];
   }
+  preguntasAleatorias = preguntas.slice(0, 8);
 }
 
-// Invocamos la función para mezclar las preguntas al cargar la página
-mezclarPreguntas();
-
 function cargarPregunta() {
-  if (preguntaActual >= preguntas.length) {
+  if (preguntaActual >= preguntasAleatorias.length) {
     // El juego ha terminado, mostrar resultado
     opcionesElement.style.display = 'none';
     preguntaElement.textContent = 'Juego terminado';
-    resultadoElement.textContent = `Obtuviste ${puntaje} puntos de ${preguntas.length}`;
+    resultadoElement.textContent = `Obtuviste ${puntaje} puntos de ${preguntasAleatorias.length}`;
     document.getElementById('btn-reintentar').style.display = 'block';
   } else {
-    const pregunta = preguntas[preguntaActual];
+    const pregunta = preguntasAleatorias[preguntaActual];
     preguntaElement.textContent = pregunta.pregunta;
 
     opcionesElement.style.display = 'block';
@@ -51,13 +53,13 @@ function reiniciarJuego() {
   opcionesDesactivadas = false;
   resultadoElement.textContent = '';
   document.getElementById('btn-reintentar').style.display = 'none';
-  mezclarPreguntas(); // Mezcla las preguntas antes de reiniciar
+  mezclarPreguntas();
   cargarPregunta();
 }
 
 function responder(opcionSeleccionada) {
   if (!opcionesDesactivadas) {
-    const pregunta = preguntas[preguntaActual];
+    const pregunta = preguntasAleatorias[preguntaActual];
     opcionesDesactivadas = true;
 
     if (opcionSeleccionada === pregunta.respuesta) {
@@ -69,20 +71,35 @@ function responder(opcionSeleccionada) {
 
     preguntaActual++;
     setTimeout(() => {
-      if (preguntaActual < preguntas.length) {
+      if (preguntaActual < preguntasAleatorias.length) {
         cargarPregunta();
       } else {
-        mostrarResultado();
+        cargarPregunta(); // Mostrar la última pregunta con el resultado final
       }
     }, 1000);
   }
 }
-const bodyElement = document.body;
-const btnToggleMode = document.getElementById('btn-toggle-mode');
 
 btnToggleMode.addEventListener('click', () => {
   bodyElement.classList.toggle('dark-mode');
 });
 
+// Agregamos un tiempo de carga de 2 segundos antes de mostrar el juego
+setTimeout(() => {
+  mezclarPreguntas();
+  cargarPregunta();
+  loadingElement.style.display = 'none';
+  gameContainerElement.style.display = 'block';
+}, 2000);
 
-cargarPregunta();
+/* Resto del código... */
+
+function mostrarJuego() {
+    loadingElement.style.display = 'none';
+    gameContainerElement.style.display = 'block';
+  }
+  
+  // Agregamos un tiempo de carga de 2 segundos antes de mostrar el juego
+  setTimeout(mostrarJuego, 2000);
+  
+  
